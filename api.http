@@ -1,0 +1,106 @@
+### Variables
+@host = localhost
+@port = 8080
+@baseUrl = http://{{host}}:{{port}}
+
+### GET /ping
+# @name ping
+GET {{baseUrl}}/ping
+
+### POST /rank
+# @name post-rank
+POST {{baseUrl}}/rank
+Content-Type: application/json
+
+{
+    "name": "Video Game Consoles",
+    "public": true
+}
+
+### GET /rank/{id}
+# @name get-rank
+GET {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93
+Content-Type: application/json
+
+### PUT /rank/{id}
+# @name put-rank
+PUT {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93
+Content-Type: application/json
+
+{
+    "name": "Video Game Consoles",
+    "public": true
+}
+
+### DELETE /rank/{id}
+# @name delete-rank
+DELETE {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93
+
+### POST /rank/{id}/attribute
+# @name post-attribute
+POST {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/attribute
+Content-Type: application/json
+
+{
+    "name": "Graphics",
+    "description": "Evaluate the graphic capacity of the console",
+    "order": 1
+}
+
+### GET /rank/{rankId}/attribute/{id}
+# @name get-attribute
+GET {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/attribute/a42108b4-4d7c-4119-b0ae-0ae5ff5b7f99
+
+### PUT /rank/{rankId}/attribute/{id}
+# @name put-attribute
+PUT {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/attribute/a42108b4-4d7c-4119-b0ae-0ae5ff5b7f99
+Content-Type: application/json
+
+{
+    "name": "Sound",
+    "description": "Evaluate the sound capacity of the console",
+    "order": 1
+}
+
+### DELETE /rank/{rankId}/attribute/{id}
+# @name delete-attribute
+DELETE {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/attribute/a42108b4-4d7c-4119-b0ae-0ae5ff5b7f99
+
+### POS /rank/{rankId}/entry
+# @name post-entry
+POST {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/entry
+Content-Type: application/json
+
+{
+    "name": "Super Nintendo Entertainment System",
+    "image_url": "https://videogame.com/snes.png",
+    "scores": {
+        "Graphics": 90
+    }
+}
+
+### GET /rank/{rankId}/entry/{id}
+# @name get-entry
+GET {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/entry/ab03a8b6-f0e6-40cd-98f0-c277b41e8a5c
+
+### PUT /rank/{rankId}/entry/{id}
+# @name put-entry
+PUT {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/entry/ab03a8b6-f0e6-40cd-98f0-c277b41e8a5c
+Content-Type: application/json
+
+{
+    "name": "Sega Mega Drive",
+    "image_url": "https://videogame.com/smd.png",
+    "scores": {
+        "Graphics": 84,
+        "Sound": 83
+    }
+}
+
+### DELETE /rank/{rankId}/entry/{id}
+# @name delete-entry
+DELETE {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/entry/79936b33-7ddd-4d78-81b2-3ee922aa3563
+
+### GET /rank/{id}/table
+# @name get-rank-table
+GET {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/table
