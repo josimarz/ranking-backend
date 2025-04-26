@@ -104,3 +104,15 @@ DELETE {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/entry/79936b33-7ddd
 ### GET /rank/{id}/table
 # @name get-rank-table
 GET {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/table
+
+### POST /rank/{id}/file
+# @name upload-file
+POST {{baseUrl}}/rank/811067b9-069f-473b-906a-231a38aa8c93/file
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="001.png"
+Content-Type: image/png
+
+< ./001.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

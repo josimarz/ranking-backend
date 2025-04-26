@@ -64,7 +64,7 @@ func connect(ctx context.Context, ctr *localstack.LocalStackContainer) error {
 	}
 	endpoint := fmt.Sprintf("http://localhost:%s", port)
 	client = dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
-		o.BaseEndpoint = &endpoint
+		o.BaseEndpoint = aws.String(endpoint)
 	})
 	return nil
 }

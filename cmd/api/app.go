@@ -8,11 +8,13 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/josimarz/ranking-backend/internal/domain/repository"
 	"github.com/josimarz/ranking-backend/internal/domain/usecase"
 	"github.com/josimarz/ranking-backend/internal/infra/db/ddb"
+	"github.com/josimarz/ranking-backend/internal/infra/storage"
 	"github.com/josimarz/ranking-backend/internal/infra/web/handler"
 	"github.com/josimarz/ranking-backend/internal/infra/web/server"
-	"github.com/josimarz/ranking-backend/internal/repository"
 )
 
 type repositories struct {
@@ -36,16 +38,19 @@ type usecases struct {
 	updateEntry   *usecase.UpdateEntryUsecase
 	deleteEntry   *usecase.DeleteEntryUsecase
 	findRankTable *usecase.FindRankTableUsecase
+	upload        *usecase.UploadUsecase
 }
 
 type application struct {
-	logger   *slog.Logger
-	cfg      config
-	client   *dynamodb.Client
-	repos    *repositories
-	usecases *usecases
-	handlers server.Handlers
-	server   server.Server
+	logger         *slog.Logger
+	cfg            config
+	dynamodbClient *dynamodb.Client
+	s3Client       *s3.Client
+	storage        storage.FileStorage
+	repos          *repositories
+	usecases       *usecases
+	handlers       server.Handlers
+	server         server.Server
 }
 
 func newApplication() *application {
@@ -57,6 +62,8 @@ func newApplication() *application {
 
 func (a *application) start() {
 	a.connectToDatabase()
+	a.connectToS3()
+	a.initStorage()
 	a.initRepositories()
 	a.initUsecases()
 	a.initHandlers()
@@ -71,15 +78,30 @@ func (a *application) connectToDatabase() {
 		a.logger.Error(err.Error())
 		os.Exit(1)
 	}
-	a.client = client
+	a.dynamodbClient = client
+}
+
+func (a *application) connectToS3() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	client, err := storage.NewS3Client(ctx)
+	if err != nil {
+		a.logger.Error(err.Error())
+		os.Exit(1)
+	}
+	a.s3Client = client
+}
+
+func (a *application) initStorage() {
+	a.storage = storage.NewFileS3Storage(a.s3Client)
 }
 
 func (a *application) initRepositories() {
 	a.repos = &repositories{
-		rank:      ddb.NewRankDynamodbRepository(a.client),
-		attr:      ddb.NewAttributeDynamodbRepository(a.client),
-		entry:     ddb.NewEntryDynamodbRepository(a.client),
-		rankTable: ddb.NewRankTableDynamodbRepository(a.client),
+		rank:      ddb.NewRankDynamodbRepository(a.dynamodbClient),
+		attr:      ddb.NewAttributeDynamodbRepository(a.dynamodbClient),
+		entry:     ddb.NewEntryDynamodbRepository(a.dynamodbClient),
+		rankTable: ddb.NewRankTableDynamodbRepository(a.dynamodbClient),
 	}
 }
 
@@ -98,6 +120,7 @@ func (a *application) initUsecases() {
 		updateEntry:   usecase.NewUpdateEntryUsecase(a.repos.entry),
 		deleteEntry:   usecase.NewDeleteEntryUsecase(a.repos.entry),
 		findRankTable: usecase.NewFindRankTableUsecase(a.repos.rankTable),
+		upload:        usecase.NewUploadUsecase(a.storage),
 	}
 }
 
@@ -116,6 +139,7 @@ func (a *application) initHandlers() {
 		"PUT /rank/{rankId}/entry/{id}":        handler.NewPutEntryHandler(a.logger, a.usecases.updateEntry),
 		"DELETE /rank/{rankId}/entry/{id}":     handler.NewDeleteEntryHandler(a.logger, a.usecases.deleteEntry),
 		"GET /rank/{id}/table":                 handler.NewGetRankTableHandler(a.logger, a.usecases.findRankTable),
+		"POST /rank/{id}/file":                 handler.NewPostFileHandler(a.logger, a.usecases.upload),
 	}
 }
 

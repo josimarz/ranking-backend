@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/josimarz/ranking-backend/internal/domain/entity"
-	"github.com/josimarz/ranking-backend/internal/repository"
+	"github.com/josimarz/ranking-backend/internal/domain/repository"
 )
 
 type FindRankTableInput struct {

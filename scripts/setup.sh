@@ -5,3 +5,10 @@ aws dynamodb create-table \
     --region us-east-1 \
     --cli-input-json file://rank-table.json \
     --no-cli-pager
+
+aws s3api create-bucket \
+    --endpoint-url http://localhost:4566 \
+    --region us-east-1 \
+    --no-cli-pager \
+    --acl public-read \
+    --bucket ranking
