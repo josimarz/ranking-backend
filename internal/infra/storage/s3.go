@@ -18,6 +18,12 @@ var (
 	bucketName = aws.String("ranking")
 )
 
+func init() {
+	if value, ok := os.LookupEnv("AWS_BUCKET"); ok {
+		bucketName = aws.String(value)
+	}
+}
+
 func NewS3Client(ctx context.Context) (*s3.Client, error) {
 	if infra.IsRunningOnLambda() {
 		cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("us-east-1"))
@@ -35,7 +41,7 @@ func NewS3Client(ctx context.Context) (*s3.Client, error) {
 		return nil, err
 	}
 	return s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.BaseEndpoint = aws.String("http://localhost:4566")
+		o.BaseEndpoint = aws.String(infra.EndpointURL())
 		o.UsePathStyle = true
 	}), nil
 }
@@ -66,5 +72,5 @@ func (*FileS3Storage) buildURL(path string) string {
 		region := os.Getenv("AWS_REGION")
 		return fmt.Sprintf("https://%s.s3-%s.amazonaws.com/%s", *bucketName, region, path)
 	}
-	return fmt.Sprintf("http://localhost:4566/%s/%s", *bucketName, path)
+	return fmt.Sprintf("%s/%s/%s", infra.EndpointURL(), *bucketName, path)
 }

@@ -43,7 +43,6 @@ type usecases struct {
 
 type application struct {
 	logger         *slog.Logger
-	cfg            config
 	dynamodbClient *dynamodb.Client
 	s3Client       *s3.Client
 	storage        storage.FileStorage
@@ -56,7 +55,6 @@ type application struct {
 func newApplication() *application {
 	return &application{
 		logger: slog.New(slog.NewTextHandler(os.Stdout, nil)),
-		cfg:    loadConfig(),
 	}
 }
 
@@ -144,11 +142,18 @@ func (a *application) initHandlers() {
 }
 
 func (a *application) startServer() {
-	addr := fmt.Sprintf(":%d", a.cfg.port)
+	addr := fmt.Sprintf(":%s", a.getPort())
 	a.server = *server.NewServer(addr, a.handlers)
 	a.logger.Info("starting server", "addr", addr)
 	if err := a.server.Start(); err != nil {
 		a.logger.Error(err.Error())
 		os.Exit(1)
 	}
+}
+
+func (*application) getPort() string {
+	if value, ok := os.LookupEnv("PORT"); ok {
+		return value
+	}
+	return "8080"
 }

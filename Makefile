@@ -14,24 +14,12 @@ confirm:
 .PHONY: setup/local
 setup/local:
 	@echo "Setting up resources to run application locally..."
-	@cd scripts; ./setup.sh
+	cd scripts; ENDPOINT_URL=http://localhost:4566 TABLE_NAME=${AWS_TABLE} BUCKET_NAME=${AWS_BUCKET} ./setup.sh
 
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	@go run ./cmd/api
-
-## db/migrations/new name=$1: create a new database migration
-.PHONY: db/migrations/new
-db/migrations/new:
-	@echo 'Creating migration files for ${name}...'
-	migrate create -seq -ext=.sql -dir=./migrations ${name}
-
-## db/migrations/up: apply all up database migrations
-.PHONY: db/migrations/up
-db/migrations/up: confirm
-	@echo 'Running up migrations...'
-	migrate -path ./migrations -database ${DB_DSN} up
+	PORT=${PORT} AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL} AWS_TABLE=${AWS_TABLE} AWS_BUCKET=${AWS_BUCKET} go run ./cmd/api
 
 ## tidy: format all .go files and tidy module dependencies
 .PHONY: tidy

@@ -27,6 +27,6 @@ func NewDynamodbClient(ctx context.Context) (*dynamodb.Client, error) {
 		return nil, err
 	}
 	return dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
-		o.BaseEndpoint = aws.String("http://localhost:4566")
+		o.BaseEndpoint = aws.String(infra.EndpointURL())
 	}), nil
 }
